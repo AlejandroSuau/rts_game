@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include <cmath>
 
 namespace {
 static const int kTargetFPS = 60;
@@ -49,10 +50,10 @@ void Game::Draw() {
     if (selector_.IsSelecting()) {
         const auto& selecting_area_ = selector_.GetArea();
         DrawRectangleLines(
-            selecting_area_.x,
-            selecting_area_.y,
-            selecting_area_.width,
-            selecting_area_.height,
+            (int)selecting_area_.x,
+            (int)selecting_area_.y,
+            (int)selecting_area_.width,
+            (int)selecting_area_.height,
             BLUE);
     }
     

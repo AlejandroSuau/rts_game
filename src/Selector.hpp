@@ -4,6 +4,7 @@
 
 class Selector {
 public:
+    void Deselect();
     void HandleSelection(
         RTSCoords mouse_coords,
         bool is_left_button_down,

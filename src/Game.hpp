@@ -2,7 +2,6 @@
 
 #include "Selector.hpp"
 #include "Entity.hpp"
-#include "Types.hpp"
 
 #include <string>
 #include <vector>
@@ -22,6 +21,7 @@ private:
     
     Selector selector_;
 
+    void Init();
     void Update();
     void Draw();
 };

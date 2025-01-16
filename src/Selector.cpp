@@ -1,5 +1,9 @@
 #include "Selector.hpp"
 
+void Selector::Deselect() {
+    is_selecting_ = false;
+}
+
 void Selector::HandleSelection(
     RTSCoords mouse_coords,
     bool is_left_button_down,

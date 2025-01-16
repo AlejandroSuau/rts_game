@@ -11,9 +11,15 @@ static const float kEntityHeight = 20;
 Game::Game(int width, int height, std::string title) 
     : width_(width), height_(height), title_(title) {}
 
+void Game::Init() {
+    selector_.Deselect();
+}
+
 void Game::Run() {
     InitWindow(width_, height_, title_.c_str());
     SetTargetFPS(kTargetFPS);
+
+    Init();
 
     while (!WindowShouldClose()) {
         this->Update();

@@ -1,7 +1,9 @@
 #pragma once
 
+#include "Types.hpp"
+
 #include "Selector.hpp"
-#include "Entity.hpp"
+#include "entity/Entity.hpp"
 
 #include <string>
 #include <vector>
@@ -24,4 +26,6 @@ private:
     void Init();
     void Update();
     void Draw();
+
+    void SpawnEntity(RTSCoords coords);
 };

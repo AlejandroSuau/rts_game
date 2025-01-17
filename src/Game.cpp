@@ -1,5 +1,8 @@
 #include "Game.hpp"
-#include <cmath>
+
+#include "components/selectable/SelectableComponent.hpp"
+
+#include <iostream>
 
 namespace {
 static const int kTargetFPS = 60;
@@ -31,15 +34,34 @@ void Game::Update() {
     RTSCoords mouse = GetMousePosition();
 
     if (IsKeyPressed(KEY_A)) {
-        entities_.emplace_back(
-            std::make_unique<Entity>(RTSRect{mouse.x, mouse.y, kEntityWidth, kEntityHeight}));
+        SpawnEntity(mouse);
     }
-
 
     selector_.HandleSelection(
         mouse,
         IsMouseButtonDown(MOUSE_BUTTON_LEFT),
         IsMouseButtonReleased(MOUSE_BUTTON_LEFT));
+    
+    // Selecting entities
+    for (const auto& e : entities_) {
+        auto selectable = e->GetComponent<SelectableComponent>();
+        if (!selectable) continue;
+
+        if (selector_.IsSelecting()) {
+            if (CheckCollisionRecs(e->GetRect(), selector_.GetArea())) {
+                selectable->OnSelect();
+            } else {
+                selectable->OnDeselect();
+            }
+        }
+    }
+}
+
+void Game::SpawnEntity(RTSCoords coords) {
+    // TODO: thought we can do auto& e = entities_.emplace_back(...);
+    entities_.emplace_back(
+        std::make_unique<Entity>(RTSRect{coords.x, coords.y, kEntityWidth, kEntityHeight}));
+    entities_.back()->AddComponent(std::make_shared<SelectableComponent>());
 }
 
 void Game::Draw() {
@@ -47,20 +69,32 @@ void Game::Draw() {
     
     ClearBackground(RAYWHITE);
     DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
-        
+    
     for (const auto& e : entities_) {
         e->Draw();
     }
 
-    // Draw Selector
+    /**
+     * Draw selector
+    */
     if (selector_.IsSelecting()) {
         const auto& selecting_area_ = selector_.GetArea();
         DrawRectangleLines(
-            (int)selecting_area_.x,
-            (int)selecting_area_.y,
-            (int)selecting_area_.width,
-            (int)selecting_area_.height,
+            static_cast<int>(selecting_area_.x),
+            static_cast<int>(selecting_area_.y),
+            static_cast<int>(selecting_area_.width),
+            static_cast<int>(selecting_area_.height),
             BLUE);
+    }
+
+    /**
+     * Draw selected entities decorator
+     */
+    for (const auto& e : entities_) {
+        auto selectable = e->GetComponent<SelectableComponent>();
+        if (selectable && selectable->IsSelected()) {
+            selectable->DrawSelectionIndicator(e->GetRect());
+        }
     }
     
     EndDrawing();

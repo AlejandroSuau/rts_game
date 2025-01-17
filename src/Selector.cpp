@@ -1,5 +1,7 @@
 #include "Selector.hpp"
 
+#include <cmath>
+
 void Selector::Deselect() {
     is_selecting_ = false;
 }
@@ -18,6 +20,19 @@ void Selector::HandleSelection(
             area_.y = mouse_coords.y;
             area_.width = starting_point_.x - mouse_coords.x;
             area_.height = starting_point_.y - mouse_coords.y;
+
+            /**
+             * TODO: handle this better way.
+             * Width and height can not be negative. Otherwise collisions works bad.
+             */
+            if (area_.width < 0.f) {
+                area_.x = starting_point_.x;
+                area_.width = abs(area_.width);
+            }
+            if (area_.height < 0.f) {
+                area_.y = starting_point_.y;
+                area_.height = abs(area_.height);
+            }
         }
     } else if (is_left_button_down) {
         is_selecting_ = true;

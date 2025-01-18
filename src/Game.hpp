@@ -4,15 +4,8 @@
 #include "Types.hpp"
 #include "Config.hpp"
 
+#include "units/UnitList.hpp"
 #include "Selector.hpp"
-
-#include <array>
-
-struct Units {
-    std::array<bool, kMaxTotalUnits> active;
-    std::array<bool, kMaxTotalUnits> selected;
-    std::array<Rectangle, kMaxTotalUnits> aabb; // Axis-Aligned Bounding Box
-};
 
 class Game {
 public:
@@ -24,7 +17,7 @@ private:
     u32 height_;
     std::string_view title_;
 
-    Units units_;
+    UnitList units_;
     
     Selector selector_;
 

@@ -1,17 +1,18 @@
 #include "Game.hpp"
 #include "Config.hpp"
 
+#include <ranges>
+
 namespace {
 static const float kEntityWidth = 20;
 static const float kEntityHeight = 20;
 }
 
 Game::Game(u32 width, u32 height, std::string_view title) 
-    : width_(width), height_(height), title_(title) {}
+    : width_(width), height_(height), title_(title), units_{} {}
 
 void Game::Init() {
     selector_.Deselect();
-    std::memset((void*)&units_, 0, sizeof(units_));
 }
 
 void Game::Run() {
@@ -23,24 +24,6 @@ void Game::Run() {
     while (!WindowShouldClose()) {
         this->Update();
         this->Draw();
-    }
-}
-
-static void UpdateSelection(Units& units, const Selector& selector)
-{
-    if (!selector.IsSelecting()) {
-        return;
-    }
-    for(u32 i = 0; i < kMaxTotalUnits; ++i) {
-        if(!units.active[i]) {
-            continue;
-        }
-
-        if (CheckCollisionRecs(units.aabb[i], selector.GetArea())) {
-            units.selected[i] = true;
-        } else {
-            units.selected[i] = false;
-        }
     }
 }
 
@@ -56,20 +39,11 @@ void Game::Update() {
         IsMouseButtonDown(MOUSE_BUTTON_LEFT),
         IsMouseButtonReleased(MOUSE_BUTTON_LEFT));
 
-    UpdateSelection(units_, selector_);
+    units_.UpdateSelection(selector_);
 }
 
 void Game::SpawnEntity(const Vector2& coords) {
-    for(u32 i = 0; i < kMaxTotalUnits; ++i) {
-        if(units_.active[i]) {
-            continue;
-        }
-
-        units_.active[i] = true;
-        units_.selected[i] = false;
-        units_.aabb[i] = {coords.x, coords.y, kEntityWidth, kEntityHeight};
-        return;
-    }
+    units_.AddUnit({coords.x, coords.y, kEntityWidth, kEntityHeight});
 }
 
 void Game::Draw() {
@@ -78,24 +52,17 @@ void Game::Draw() {
     ClearBackground(RAYWHITE);
     DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
     
+    // TODO: Maybe Unit itself controls its drawing (even selected draw too).
     /* Draw basic unit */
-    for(u32 i = 0; i < kMaxTotalUnits; ++i) {
-        if(!units_.active[i]) {
-            continue;
+    const auto& units = units_.GetUnits();
+    auto is_active_unit = [](const auto& u) { return u.is_active; };
+    for (const auto& unit : units | std::views::filter(is_active_unit)) {
+        DrawRectangleLinesEx(unit.aabb, 1.0f, RED);
+        
+        /* Draw unit selection decoration */
+        if (unit.is_selected) {
+            DrawRectangleLinesEx(unit.aabb, 2.0f, GREEN);
         }
-    
-        DrawRectangleLinesEx(units_.aabb[i], 1.0f, RED);
-    }
-
-    /* Draw unit selection decoration */
-    for(u32 i = 0; i < kMaxTotalUnits; ++i) {
-        if(!units_.active[i]) {
-            continue;
-        }
-        if(!units_.selected[i]) {
-            continue;
-        }
-        DrawRectangleLinesEx(units_.aabb[i], 2.0f, GREEN);
     }
 
     /* Draw selection */

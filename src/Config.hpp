@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Types.hpp"
+#include <slib/types.h>
 #include <string_view>
 
 /* Engine configuration */

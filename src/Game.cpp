@@ -1,6 +1,7 @@
 #include "Game.hpp"
 #include "Config.hpp"
 
+#include <slib/profiler.h>
 #include <ranges>
 
 namespace {
@@ -28,6 +29,8 @@ void Game::Run() {
 }
 
 void Game::Update() {
+    PROFILE_FUNCTION;
+
     Vector2 mouse = GetMousePosition();
 
     if (IsKeyPressed(KEY_A)) {
@@ -43,10 +46,12 @@ void Game::Update() {
 }
 
 void Game::SpawnEntity(const Vector2& coords) {
+    PROFILE_FUNCTION;
     units_.AddUnit({coords.x, coords.y, kEntityWidth, kEntityHeight});
 }
 
 void Game::Draw() {
+    PROFILE_FUNCTION;
     BeginDrawing();
     
     ClearBackground(RAYWHITE);
@@ -54,14 +59,18 @@ void Game::Draw() {
     
     // TODO: Maybe Unit itself controls its drawing (even selected draw too).
     /* Draw basic unit */
-    const auto& units = units_.GetUnits();
-    auto is_active_unit = [](const auto& u) { return u.is_active; };
-    for (const auto& unit : units | std::views::filter(is_active_unit)) {
-        DrawRectangleLinesEx(unit.aabb, 1.0f, RED);
-        
-        /* Draw unit selection decoration */
-        if (unit.is_selected) {
-            DrawRectangleLinesEx(unit.aabb, 2.0f, GREEN);
+    {
+        PROFILE_BLOCK("Draw Units");
+
+        const auto& units = units_.GetUnits();
+        auto is_active_unit = [](const auto& u) { return u.is_active; };
+        for (const auto& unit : units | std::views::filter(is_active_unit)) {
+            DrawRectangleLinesEx(unit.aabb, 1.0f, RED);
+
+            /* Draw unit selection decoration */
+            if (unit.is_selected) {
+                DrawRectangleLinesEx(unit.aabb, 2.0f, GREEN);
+            }
         }
     }
 

@@ -16,6 +16,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 include_directories(${PROJECT_SOURCE_DIR})
 
+# We should probably replace this and the raylib one below with a submodules
+set(ROOT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/)
+include_directories(${ROOT_SOURCE_DIR})
+
 # Include Raylib
 set(PROJECT_RAYLIB_DIR ${CMAKE_SOURCE_DIR}/raylib/src)
 include_directories(${PROJECT_RAYLIB_DIR})
@@ -23,8 +27,13 @@ include_directories(${PROJECT_RAYLIB_DIR})
 # Encontrar automáticamente todos los archivos en src/
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/*.cpp)
 
+# Build Raylib
 set(RAYLIB_DIR ${CMAKE_SOURCE_DIR}/raylib)
 add_subdirectory(${RAYLIB_DIR} ${CMAKE_BINARY_DIR}/raylib)
+
+# Build slib
+file(GLOB_RECURSE SLIB_SOURCES ${CMAKE_SOURCE_DIR}/slib/*.cpp)
+add_library(slib ${SLIB_SOURCES})
 
 # Crear el ejecutable
 add_executable(rtsgame ${SOURCES})
@@ -70,5 +79,6 @@ endif()
 target_link_libraries(
     rtsgame
     PRIVATE raylib
+    PRIVATE slib
     ${OS_SPECIFIC_LIBS}
 )

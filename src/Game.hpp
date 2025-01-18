@@ -1,7 +1,7 @@
 #pragma once
 
+#include <slib/types.h>
 #include "raylib.h"
-#include "Types.hpp"
 #include "Config.hpp"
 
 #include "units/UnitList.hpp"

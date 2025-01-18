@@ -7,13 +7,13 @@ void Selector::Deselect() {
 }
 
 void Selector::HandleSelection(
-    RTSCoords mouse_coords,
+    const Vector2& mouse_coords,
     bool is_left_button_down,
     bool is_left_button_released) {
     
     if (is_selecting_) {
         if (is_left_button_released) {
-            area_ = RTSRect{};
+            area_ = Rectangle{};
             is_selecting_ = false;
         } else {
             area_.x = mouse_coords.x;
@@ -40,10 +40,10 @@ void Selector::HandleSelection(
     }
 }
 
-const bool Selector::IsSelecting() const {
+bool Selector::IsSelecting() const {
     return is_selecting_;
 }
 
-const RTSRect& Selector::GetArea() const {
+const Rectangle& Selector::GetArea() const {
     return area_;
 }

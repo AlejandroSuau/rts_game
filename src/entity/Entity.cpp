@@ -1,5 +1,0 @@
-#include "entity/Entity.hpp"
-
-/**
- * 
- */

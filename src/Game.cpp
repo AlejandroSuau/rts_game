@@ -1,25 +1,21 @@
 #include "Game.hpp"
-
-#include "components/selectable/SelectableComponent.hpp"
-
-#include <iostream>
+#include "Config.hpp"
 
 namespace {
-static const int kTargetFPS = 60;
-
 static const float kEntityWidth = 20;
 static const float kEntityHeight = 20;
 }
 
-Game::Game(int width, int height, std::string title) 
+Game::Game(u32 width, u32 height, std::string_view title) 
     : width_(width), height_(height), title_(title) {}
 
 void Game::Init() {
     selector_.Deselect();
+    std::memset((void*)&units_, 0, sizeof(units_));
 }
 
 void Game::Run() {
-    InitWindow(width_, height_, title_.c_str());
+    InitWindow(width_, height_, title_.data());
     SetTargetFPS(kTargetFPS);
 
     Init();
@@ -30,8 +26,26 @@ void Game::Run() {
     }
 }
 
+static void UpdateSelection(Units& units, const Selector& selector)
+{
+    if (!selector.IsSelecting()) {
+        return;
+    }
+    for(u32 i = 0; i < kMaxTotalUnits; ++i) {
+        if(!units.active[i]) {
+            continue;
+        }
+
+        if (CheckCollisionRecs(units.aabb[i], selector.GetArea())) {
+            units.selected[i] = true;
+        } else {
+            units.selected[i] = false;
+        }
+    }
+}
+
 void Game::Update() {
-    RTSCoords mouse = GetMousePosition();
+    Vector2 mouse = GetMousePosition();
 
     if (IsKeyPressed(KEY_A)) {
         SpawnEntity(mouse);
@@ -41,27 +55,21 @@ void Game::Update() {
         mouse,
         IsMouseButtonDown(MOUSE_BUTTON_LEFT),
         IsMouseButtonReleased(MOUSE_BUTTON_LEFT));
-    
-    // Selecting entities
-    for (const auto& e : entities_) {
-        auto selectable = e->GetComponent<SelectableComponent>();
-        if (!selectable) continue;
 
-        if (selector_.IsSelecting()) {
-            if (CheckCollisionRecs(e->GetRect(), selector_.GetArea())) {
-                selectable->OnSelect();
-            } else {
-                selectable->OnDeselect();
-            }
-        }
-    }
+    UpdateSelection(units_, selector_);
 }
 
-void Game::SpawnEntity(RTSCoords coords) {
-    // TODO: thought we can do auto& e = entities_.emplace_back(...);
-    entities_.emplace_back(
-        std::make_unique<Entity>(RTSRect{coords.x, coords.y, kEntityWidth, kEntityHeight}));
-    entities_.back()->AddComponent(std::make_shared<SelectableComponent>());
+void Game::SpawnEntity(const Vector2& coords) {
+    for(u32 i = 0; i < kMaxTotalUnits; ++i) {
+        if(units_.active[i]) {
+            continue;
+        }
+
+        units_.active[i] = true;
+        units_.selected[i] = false;
+        units_.aabb[i] = {coords.x, coords.y, kEntityWidth, kEntityHeight};
+        return;
+    }
 }
 
 void Game::Draw() {
@@ -70,31 +78,30 @@ void Game::Draw() {
     ClearBackground(RAYWHITE);
     DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
     
-    for (const auto& e : entities_) {
-        e->Draw();
-    }
-
-    /**
-     * Draw selector
-    */
-    if (selector_.IsSelecting()) {
-        const auto& selecting_area_ = selector_.GetArea();
-        DrawRectangleLines(
-            static_cast<int>(selecting_area_.x),
-            static_cast<int>(selecting_area_.y),
-            static_cast<int>(selecting_area_.width),
-            static_cast<int>(selecting_area_.height),
-            BLUE);
-    }
-
-    /**
-     * Draw selected entities decorator
-     */
-    for (const auto& e : entities_) {
-        auto selectable = e->GetComponent<SelectableComponent>();
-        if (selectable && selectable->IsSelected()) {
-            selectable->DrawSelectionIndicator(e->GetRect());
+    /* Draw basic unit */
+    for(u32 i = 0; i < kMaxTotalUnits; ++i) {
+        if(!units_.active[i]) {
+            continue;
         }
+    
+        DrawRectangleLinesEx(units_.aabb[i], 1.0f, RED);
+    }
+
+    /* Draw unit selection decoration */
+    for(u32 i = 0; i < kMaxTotalUnits; ++i) {
+        if(!units_.active[i]) {
+            continue;
+        }
+        if(!units_.selected[i]) {
+            continue;
+        }
+        DrawRectangleLinesEx(units_.aabb[i], 2.0f, GREEN);
+    }
+
+    /* Draw selection */
+    if (selector_.IsSelecting()) {
+        const auto& area = selector_.GetArea();
+        DrawRectangleLinesEx(area, 1.0f, BLUE);
     }
     
     EndDrawing();

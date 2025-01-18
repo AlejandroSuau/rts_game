@@ -1,20 +1,20 @@
 #pragma once
 
-#include "Types.hpp"
+#include "raylib.h"
 
 class Selector {
 public:
     void Deselect();
     void HandleSelection(
-        RTSCoords mouse_coords,
+        const Vector2& mouse_coords,
         bool is_left_button_down,
         bool is_left_button_released);
 
-    const bool IsSelecting() const;
-    const RTSRect& GetArea() const;
+    bool IsSelecting() const;
+    const Rectangle& GetArea() const;
 
 private:
     bool is_selecting_;
-    RTSCoords starting_point_;
-    RTSRect area_;
+    Vector2 starting_point_;
+    Rectangle area_;
 };

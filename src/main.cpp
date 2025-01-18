@@ -1,6 +1,7 @@
+#include "Config.hpp"
 #include "Game.hpp"
 
 int main() {
-    Game game(800, 600, "RTS Game");
+    Game game(kWindowWidth, kWindowHeight, kWindowTitle);
     game.Run();
 }

@@ -14,10 +14,6 @@ Game::Game(u32 width, u32 height, std::string_view title)
 
 void Game::Init() {
     selector_.Deselect();
-    for(auto& unit : units_.GetUnits())
-    {
-        unit.is_active = true;
-    }
 }
 
 void Game::Run() {

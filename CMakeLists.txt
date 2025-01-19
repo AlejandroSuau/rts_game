@@ -32,8 +32,7 @@ set(RAYLIB_DIR ${CMAKE_SOURCE_DIR}/raylib)
 add_subdirectory(${RAYLIB_DIR} ${CMAKE_BINARY_DIR}/raylib)
 
 # Build slib
-file(GLOB_RECURSE SLIB_SOURCES ${CMAKE_SOURCE_DIR}/slib/*.cpp)
-add_library(slib ${SLIB_SOURCES})
+add_library(slib ${CMAKE_SOURCE_DIR}/slib/slib.cpp)
 
 # Crear el ejecutable
 add_executable(rtsgame ${SOURCES})

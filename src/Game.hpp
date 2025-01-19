@@ -18,8 +18,8 @@ private:
     std::string_view title_;
 
     UnitList units_;
-    
     Selector selector_;
+    Vector2 cursor_;
 
     void Init();
     void Update();

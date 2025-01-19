@@ -14,6 +14,10 @@ Game::Game(u32 width, u32 height, std::string_view title)
 
 void Game::Init() {
     selector_.Deselect();
+    for(auto& unit : units_.GetUnits())
+    {
+        unit.is_active = true;
+    }
 }
 
 void Game::Run() {
@@ -56,7 +60,7 @@ void Game::Draw() {
     
     ClearBackground(RAYWHITE);
     DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
-
+    
     // TODO: Maybe Unit itself controls its drawing (even selected draw too).
     /* Draw basic unit */
     {
@@ -65,8 +69,6 @@ void Game::Draw() {
         for(const auto& unit : units_.GetUnits())
         {
             if(!unit.is_active)
-                continue;
-            if(unit.is_selected)
                 continue;
 
             DrawRectangleLinesEx(unit.aabb, 1.0f, RED);

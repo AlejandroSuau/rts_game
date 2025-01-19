@@ -36,3 +36,7 @@ void UnitList::UpdateSelection(const Selector& selector) {
 const UnitList::Units& UnitList::GetUnits() const {
     return units_;
 }
+
+UnitList::Units& UnitList::GetUnits() {
+    return units_;
+}

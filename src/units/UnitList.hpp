@@ -16,6 +16,7 @@ public:
     void UpdateSelection(const Selector& selector);
 
     const Units& GetUnits() const;
+    Units& GetUnits();
 
 private:
     Units units_;
